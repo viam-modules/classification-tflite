@@ -31,12 +31,13 @@ def parse_args():
     return args.data_json, args.model_dir
 
 def parse_filenames_and_labels_from_json(
-    filename: str, all_labels: ty.List[str]
+    filename: str, all_labels: ty.List[str], model_type: str
 ) -> ty.Tuple[ty.List[str], ty.List[str]]:
     """Load and parse JSON file to return image filenames and corresponding labels.
     Args:
         filename: JSONLines file containing filenames and labels
         all_labels: list of all N_LABELS
+        model_type: string single_label or multi_label
     """
     image_filenames = []
     image_labels = []
@@ -47,12 +48,16 @@ def parse_filenames_and_labels_from_json(
             image_filenames.append(json_line["image_path"])
             
             annotations = json_line["classification_annotations"]
-            labels = []
+            labels = [unknown_label]
             for annotation in annotations:
-                if annotation["annotation_label"] in all_labels:
-                    labels.append(annotation["annotation_label"])
-                elif unknown_label not in labels:
-                    labels.append(unknown_label)
+                if model_type == multi_label:
+                    if annotation["annotation_label"] in all_labels:
+                        labels.append(annotation["annotation_label"])
+                # For single label model, we want at most one label. 
+                # If multiple valid labels are present, we arbitrarily select the last one.
+                if model_type == single_label:
+                    if annotation["annotation_label"] in all_labels:
+                        labels = [annotation["annotation_label"]]
             image_labels.append(labels)
     return image_filenames, image_labels
 
@@ -335,8 +340,9 @@ if __name__ == "__main__":
 
     # Read dataset file, labels should be changed according to the desired model output.
     LABELS = ["orange_triangle", "blue_star"]
-    image_filenames, image_labels = parse_filenames_and_labels_from_json(DATA_JSON, LABELS)
+    # The model type can be changed based on whether we want the model to output one label per image or multiple labels per image
     model_type = multi_label
+    image_filenames, image_labels = parse_filenames_and_labels_from_json(DATA_JSON, LABELS, model_type)
     # Generate 80/20 split for train and test data
     train_dataset, test_dataset = create_dataset_classification(
         filenames=image_filenames,
