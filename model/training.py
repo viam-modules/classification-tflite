@@ -3,8 +3,11 @@ import json
 import os
 import typing as ty
 import tensorflow as tf
-from keras import Model, callbacks
+from keras import Model
 import numpy as np
+
+from tflite_support.metadata_writers import image_classifier
+from tflite_support.metadata_writers import writer_utils
 
 single_label = "MODEL_TYPE_SINGLE_LABEL_CLASSIFICATION"
 multi_label = "MODEL_TYPE_MULTI_LABEL_CLASSIFICATION"
@@ -17,8 +20,6 @@ TFLITE_OPS = [
 ]
 
 TFLITE_OPTIMIZATIONS = [tf.lite.Optimize.DEFAULT]
-
-ROUNDING_DIGITS = 5
 
 def parse_args():
     """Dataset file and model output directory are required parameters. These must be parsed as command line 
@@ -312,10 +313,19 @@ def save_tflite_classification(
     converter.target_spec.supported_ops = TFLITE_OPS
     tflite_model = converter.convert()
 
-    # Save the model to the output directory.
+    ImageClassifierWriter = image_classifier.MetadataWriter
+    # Task Library expects label files that are in the same format as the one below.
+    labels_file = os.path.join(model_dir, labels_filename)
+
+    # Create the metadata writer.
+    writer = ImageClassifierWriter.create_for_inference(
+        tflite_model, [_INPUT_NORM_MEAN], [_INPUT_NORM_STD], [labels_file]
+    )
+
     filename = os.path.join(model_dir, f"{model_name}.tflite")
-    with open(filename, "wb") as f:
-        f.write(tflite_model)
+    # Populate the metadata into the model.
+    # Save the model to GCS
+    writer_utils.save_file(writer.populate(), filename)
 
 if __name__ == "__main__":
     DATA_JSON, MODEL_DIR = parse_args()
