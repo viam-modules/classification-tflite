@@ -14,12 +14,14 @@ multi_label = "MODEL_TYPE_MULTI_LABEL_CLASSIFICATION"
 labels_filename = "labels.txt"
 unknown_label = "UNKNOWN"
 
+# Normalization parameters are required when reprocessing the image.
+_INPUT_NORM_MEAN = 127.5
+_INPUT_NORM_STD = 127.5
+
 TFLITE_OPS = [
     tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
     tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
 ]
-
-TFLITE_OPTIMIZATIONS = [tf.lite.Optimize.DEFAULT]
 
 def parse_args():
     """Dataset file and model output directory are required parameters. These must be parsed as command line 
