@@ -30,8 +30,9 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_file", dest="data_json", type=str)
     parser.add_argument("--model_output_directory", dest="model_dir", type=str)
+    parser.add_argument("--epochs", dest="epochs", type=int, default=2)
     args = parser.parse_args()
-    return args.data_json, args.model_dir
+    return args.data_json, args.model_dir, args.epochs
 
 def parse_filenames_and_labels_from_json(
     filename: str, all_labels: ty.List[str], model_type: str
@@ -330,7 +331,7 @@ def save_tflite_classification(
     writer_utils.save_file(writer.populate(), filename)
 
 if __name__ == "__main__":
-    DATA_JSON, MODEL_DIR = parse_args()
+    DATA_JSON, MODEL_DIR, EPOCHS = parse_args()
     # Set up compute device strategy. If GPUs are available, they will be used
     if len(tf.config.list_physical_devices("GPU")) > 0:
         strategy = tf.distribute.OneDeviceStrategy(device="/gpu:0")
@@ -339,7 +340,7 @@ if __name__ == "__main__":
 
     IMG_SIZE = (256, 256)
     # Epochs and batch size can be adjusted according to the training job.
-    EPOCHS = 2
+    # EPOCHS = 2
     BATCH_SIZE = 16
     SHUFFLE_BUFFER_SIZE = 32
     AUTOTUNE = (
