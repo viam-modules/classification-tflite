@@ -25,7 +25,5 @@ jobs:
       run: poetry run black . --check
     - name: Build Docker
       description: 'Build the python distribution in a docker container.'
-      runs:
-        using: 'docker'
-        image: 'Dockerfile'
+      uses: actions/build_docker_image@v2
 
