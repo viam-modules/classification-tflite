@@ -23,9 +23,10 @@ TFLITE_OPS = [
     tf.lite.OpsSet.SELECT_TF_OPS,  # enable TensorFlow ops.
 ]
 
+
 def parse_args():
-    """Dataset file and model output directory are required parameters. These must be parsed as command line 
-        arguments and then used as the model input and output, respectively.
+    """Dataset file and model output directory are required parameters. These must be parsed as command line
+    arguments and then used as the model input and output, respectively.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_file", dest="data_json", type=str)
@@ -33,6 +34,7 @@ def parse_args():
     parser.add_argument("--epochs", dest="epochs", type=int, default=2)
     args = parser.parse_args()
     return args.data_json, args.model_dir, args.epochs
+
 
 def parse_filenames_and_labels_from_json(
     filename: str, all_labels: ty.List[str], model_type: str
@@ -50,20 +52,21 @@ def parse_filenames_and_labels_from_json(
         for line in f:
             json_line = json.loads(line)
             image_filenames.append(json_line["image_path"])
-            
+
             annotations = json_line["classification_annotations"]
             labels = [unknown_label]
             for annotation in annotations:
                 if model_type == multi_label:
                     if annotation["annotation_label"] in all_labels:
                         labels.append(annotation["annotation_label"])
-                # For single label model, we want at most one label. 
+                # For single label model, we want at most one label.
                 # If multiple valid labels are present, we arbitrarily select the last one.
                 if model_type == single_label:
                     if annotation["annotation_label"] in all_labels:
                         labels = [annotation["annotation_label"]]
             image_labels.append(labels)
     return image_filenames, image_labels
+
 
 def get_neural_network_params(
     num_classes: int, model_type: str
@@ -96,6 +99,7 @@ def get_neural_network_params(
         )
     return units, activation, loss, metrics
 
+
 def preprocessing_layers_classification(
     img_size: ty.Tuple[int, int] = (256, 256)
 ) -> ty.Tuple[tf.Tensor, tf.Tensor]:
@@ -111,6 +115,7 @@ def preprocessing_layers_classification(
         ]
     )
     return preprocessing
+
 
 def encoded_labels(
     image_labels: ty.List[str], all_labels: ty.List[str], model_type: str
@@ -130,6 +135,7 @@ def encoded_labels(
             vocabulary=all_labels, num_oov_indices=0, output_mode="multi_hot"
         )
     return encoder(image_labels)
+
 
 def parse_image_and_encode_labels(
     filename: str,
@@ -237,7 +243,7 @@ def build_and_compile_classification(
     Args:
         labels: list of string lists, where each string list contains up to N_LABEL labels associated with an image
         model_type: string single_label or multi_label
-        input_shape: 3D shape of input 
+        input_shape: 3D shape of input
     """
     units, activation, loss_fnc, metrics = get_neural_network_params(
         len(labels), model_type
@@ -283,6 +289,7 @@ def build_and_compile_classification(
     )
     return model
 
+
 def save_labels(labels: ty.List[str], model_dir: str) -> None:
     """Saves a label.txt of output labels to the specified model directory.
     Args:
@@ -294,6 +301,7 @@ def save_labels(labels: ty.List[str], model_dir: str) -> None:
         for label in labels[:-1]:
             f.write(label + "\n")
         f.write(labels[-1])
+
 
 def save_tflite_classification(
     model: Model,
@@ -330,6 +338,7 @@ def save_tflite_classification(
     # Save the model to GCS
     writer_utils.save_file(writer.populate(), filename)
 
+
 if __name__ == "__main__":
     DATA_JSON, MODEL_DIR, EPOCHS = parse_args()
     # Set up compute device strategy. If GPUs are available, they will be used
@@ -355,7 +364,9 @@ if __name__ == "__main__":
     LABELS = ["orange_triangle", "blue_star"]
     # The model type can be changed based on whether we want the model to output one label per image or multiple labels per image
     model_type = multi_label
-    image_filenames, image_labels = parse_filenames_and_labels_from_json(DATA_JSON, LABELS, model_type)
+    image_filenames, image_labels = parse_filenames_and_labels_from_json(
+        DATA_JSON, LABELS, model_type
+    )
     # Generate 80/20 split for train and test data
     train_dataset, test_dataset = create_dataset_classification(
         filenames=image_filenames,
@@ -378,9 +389,10 @@ if __name__ == "__main__":
 
     # Train model on data
     loss_history = model.fit(
-            x=train_dataset, epochs=EPOCHS,
+        x=train_dataset,
+        epochs=EPOCHS,
     )
- 
+
     # Save labels.txt file
     save_labels(LABELS + [unknown_label], MODEL_DIR)
     # Convert the model to tflite
