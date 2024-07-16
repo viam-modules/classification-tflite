@@ -24,7 +24,7 @@ jobs:
     - name: Lint
       run: poetry run black . --check
     - name: Test Docker Build
-      run: docker build -f Dockerfile -t temp
+      run: docker build -t temp .
   # docker:
   #   runs-on: ubuntu-latest
   #   steps:
