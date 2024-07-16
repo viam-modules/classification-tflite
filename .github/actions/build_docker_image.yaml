@@ -1,6 +1,6 @@
 # action.yml
 name: 'Build Docker'
-description: 'Build Docker Image'
+description: 'Build the python distribution in a docker container.'
 runs:
   using: 'docker'
   image: 'Dockerfile'

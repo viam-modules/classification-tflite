@@ -24,6 +24,5 @@ jobs:
     - name: Lint
       run: poetry run black . --check
     - name: Build Docker
-      description: 'Build the python distribution in a docker container.'
       uses: actions/build_docker_image@v2
 
