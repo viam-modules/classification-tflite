@@ -7,9 +7,11 @@ RUN apt-get update && apt-get install libusb-1.0-0
 # Copies the trainer code to the Docker image and builds the source distribution.
 COPY . /root/
 WORKDIR /root/
-RUN python3 setup.py sdist --formats=gztar
+RUN pip install poetry
+RUN poetry install
+RUN poetry run pip install tflite-support
 # Install the source distribution
-RUN pip install dist/training-0.1.tar.gz
+
 
 # Set up the entry point to invoke the trainer.
-ENTRYPOINT ["python3", "-m", "model.training"]
+ENTRYPOINT ["poetry", "run", "python3", "model/training.py"]

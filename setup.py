@@ -3,9 +3,9 @@ from setuptools import find_packages, setup
 setup(
     name="training",
     version="0.1",
-    packages=find_packages(),
+    packages=find_packages(include=["model", "model.*"]),
     include_package_data=True,
-    install_requires=[
+    setup_requires=[
         "google-cloud-aiplatform",
         "google-cloud-storage",
         "keras==2.11.0",
