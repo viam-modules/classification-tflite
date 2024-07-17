@@ -12,4 +12,4 @@ RUN python3 setup.py sdist --formats=gztar
 RUN pip install dist/training-0.1.tar.gz
 
 # Set up the entry point to invoke the trainer.
-ENTRYPOINT ["python3", "model.training"]
+ENTRYPOINT ["python3", "-m", "model.training"]
