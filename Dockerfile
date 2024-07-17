@@ -9,7 +9,7 @@ COPY . /root/
 WORKDIR /root/
 RUN python3 setup.py sdist --formats=gztar
 # Install the source distribution
-RUN pip install dist/training-0.1.tar.gz
+RUN pip install dist/model-0.1.tar.gz
 
 # Set up the entry point to invoke the trainer.
 ENTRYPOINT ["python3", "-m", "model.training"]
