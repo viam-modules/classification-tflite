@@ -1,0 +1,72 @@
+name: Build Test ML Container for Training
+
+on:
+  workflow_call:
+    inputs:
+      gcp-project-id:
+        type: string
+        required: true
+      service-account:
+        type: string
+        required: true
+      image-tag:
+        type: string
+        required: true
+      container-name-suffix:
+        type: string
+        required: true
+    secrets:
+      GCP_SA_KEY:
+        required: true
+    outputs:
+      training-image-uri:
+          description: "Training image URI for Docker container used for ML training"
+          value: ${{ jobs.build-ml-container.outputs.training-image-uri }}
+      ml-image-name:
+          description: "Package name for the temporary, test image in the Artifact Registry"
+          value: ${{ jobs.build-ml-container.outputs.ml-image-name }}
+
+jobs:
+  build-ml-container:
+    name: Deploy the container for ML training
+    runs-on: [ubuntu-latest]
+    timeout-minutes: 10
+
+    outputs:
+      training-image-uri: ${{ steps.set-training-image-var.outputs.training-image-uri }}
+      ml-image-name: ${{ steps.ml-image-name.outputs.ml-image-name }}
+    
+    steps:
+      - name: Check out code in app directory
+        uses: actions/checkout@v3
+
+      - name: Auth against GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Authorize Docker push
+        run:  |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --project ${{ inputs.gcp-project-id }} --account ${{ inputs.service-account }}
+
+      - name: Get ML image name
+        id: ml-image-name
+        run: |
+          echo "ml-image-name=mltraining-container-test-${{ inputs.container-name-suffix }}" >> "${GITHUB_OUTPUT}"
+
+      - name: Build and push ML Docker container and set variables for temporary staging environment
+        id: set-training-image-var
+        env:
+            gcp_project_id: ${{ inputs.gcp-project-id }}
+            IMAGE_TAG: ${{ inputs.image-tag }}
+            ml_image_name: ${{ steps.ml-image-name.outputs.ml-image-name }}
+        run: |
+          docker build -t ${{ inputs.training-image-name }} .
+          docker push ${{ inputs.training-image-name }}
+
+      - name: Cleanup Local Containers
+        if: always()
+        run: docker rmi ${{ inputs.training-image-name }} || true
