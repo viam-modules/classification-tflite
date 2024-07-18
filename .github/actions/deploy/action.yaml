@@ -36,7 +36,7 @@ runs:
     - name: Authorize Docker push
       shell: bash
       run:  |
-        gcloud auth configure-docker us-central1-docker.pkg.dev --project ${{ inputs.gcp-project }}
+        gcloud auth configure-docker us-central1-docker.pkg.dev --project web-app-304613
 
     - name: Get new staging and latest staging ML container names
       id: set-training-image-var
