@@ -4,9 +4,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# on:
-#   pull_request:
-#     types: [opened, synchronize, reopened, labeled]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
 
 jobs:
   build:
@@ -24,8 +24,10 @@ jobs:
       run: black . --check
     - name: Docker Build
       run: docker build -t temp .
-    - name: Test
-      run: docker run --platform linux/amd64 temp
+    - name: Run script locally
+      run: docker run temp
+    - name: Run test
+      run: docker run temp sh -c "pytest" 
   # docker:
   #   runs-on: ubuntu-latest
   #   steps:
