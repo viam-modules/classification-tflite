@@ -25,7 +25,7 @@ runs:
     - name: Auth against GCP
       uses: google-github-actions/auth@v1
       with:
-        credentials_json: ${{ secrets.GCP_SA_KEY }}
+        credentials_json: ${{ inputs.GCP_SA_KEY }}
 
     - name: Set up Cloud SDK
       uses: google-github-actions/setup-gcloud@v1
@@ -38,8 +38,8 @@ runs:
       id: set-training-image-var
       run: |
         echo "image-tag=$(shell date -u +'%Y-%m-%d')-dev-$(shell git rev-parse HEAD)" >> $GITHUB_OUTPUT
-        echo "image-uri=$(TRAINING_IMAGE_BASE_NAME):IMAGE_TAG >> $GITHUB_OUTPUT
-        echo "image-latest-uri=$($(TRAINING_IMAGE_BASE_NAME):latest)" >> $GITHUB_OUTPUT
+        echo "image-uri=${{ env.training-image-base-name }}:image-tag >> $GITHUB_OUTPUT
+        echo "image-latest-uri=${{ env.training-image-base-name }}:latest)" >> $GITHUB_OUTPUT
 
     - name: Rename temp, tested staging ML container and push to staging Artifact Registry
       env:
