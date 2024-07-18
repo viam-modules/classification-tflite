@@ -22,12 +22,12 @@ jobs:
   deploy-staging:
     runs-on: [ubuntu-latest]
     name: Rename testing container in staging and push to staging
-
+    
     timeout-minutes: 30
     
     steps:
     - name: Deploy Model to Staging
-      uses: .github/workflows/actions/deploy/action.yaml
+      uses: viam-modules/classification-tflite/.github/workflows/actions/deploy@DATA-2821/workflows
       with:
         training-image-base-name: us-central1-docker.pkg.dev/${{env.staging-gcp-project-id}}/mltraining/${{ env.ml-image-name}}
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
