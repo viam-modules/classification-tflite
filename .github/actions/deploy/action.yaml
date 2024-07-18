@@ -1,0 +1,56 @@
+# name: Deploy App to Cloud Run
+
+description: 'Deploy App to Cloud Run'
+inputs:
+  training-image-base-name:
+    type: string 
+    required: true
+    description: "App Image tag to use"
+  gcp-project:
+    type: string
+    required: true
+  GCP_SA_KEY:
+    type: string
+    required: true
+
+
+name: Deploy ML Script
+
+runs:
+  using: "composite"
+    name: Rename testing container in staging and push to staging
+    runs-on: [ubuntu-latest]
+    
+    timeout-minutes: 30
+    
+    steps:
+      - name: Check out code in app directory
+        uses: actions/checkout@v3
+
+      - name: Auth against GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Authorize Docker push
+        run:  |
+          gcloud auth configure-docker us-central1-docker.pkg.dev --project ${{ inputs.gcp-project }}
+
+      - name: Get new staging and latest staging ML container names
+        id: set-training-image-var
+        run: |
+          echo "image-tag=$(shell date -u +'%Y-%m-%d')-dev-$(shell git rev-parse HEAD)" >> $GITHUB_OUTPUT
+          echo "image-uri=$(TRAINING_IMAGE_BASE_NAME):IMAGE_TAG >> $GITHUB_OUTPUT
+          echo "image-latest-uri=$($(TRAINING_IMAGE_BASE_NAME):latest)" >> $GITHUB_OUTPUT
+
+      - name: Rename temp, tested staging ML container and push to staging Artifact Registry
+        env:
+          gcp_project_id: staging-cloud-web-app
+        run: |
+          docker pull ${{ inputs.training-image-uri }}
+          docker tag ${{ inputs.training-image-uri }} ${{ steps.set-training-image-var.outputs.image-uri }}
+          docker tag ${{ inputs.training-image-uri }} ${{ steps.set-training-image-var.outputs.image-latest-uri }}
+          docker push ${{ inputs.training-image-base-name }} --all-tags
