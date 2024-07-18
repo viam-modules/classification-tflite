@@ -28,17 +28,4 @@ jobs:
       run: docker run temp
     - name: Run test
       run: docker run temp sh -c "pytest" 
-  # docker:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Set up QEMU
-  #       uses: docker/setup-qemu-action@v3
-      
-  #     - name: Set up Docker Buildx
-  #       uses: docker/setup-buildx-action@v3
-  #     - name: Test
-  #       run: |
-  #         docker run --rm ${{ env.TEST_TAG }}  
-    # - name: Build Docker
-    #   uses: viam-modules/classification-tflite/.github/actions/build_docker_image@DATA-2821/workflows
 
