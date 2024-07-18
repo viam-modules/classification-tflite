@@ -31,11 +31,13 @@ runs:
       uses: google-github-actions/setup-gcloud@v1
 
     - name: Authorize Docker push
+      shell: bash
       run:  |
         gcloud auth configure-docker us-central1-docker.pkg.dev --project ${{ inputs.gcp-project }}
 
     - name: Get new staging and latest staging ML container names
       id: set-training-image-var
+      shell: bash
       run: |
         echo "image-tag=$(shell date -u +'%Y-%m-%d')-dev-$(shell git rev-parse HEAD)" >> $GITHUB_OUTPUT
         echo "image-uri=${{ env.training-image-base-name }}:image-tag >> $GITHUB_OUTPUT
@@ -44,6 +46,7 @@ runs:
     - name: Rename temp, tested staging ML container and push to staging Artifact Registry
       env:
         gcp_project_id: staging-cloud-web-app
+      shell: bash
       run: |
         docker pull ${{ inputs.training-image-uri }}
         docker tag ${{ inputs.training-image-uri }} ${{ steps.set-training-image-var.outputs.image-uri }}
