@@ -19,29 +19,29 @@ env:
   ml-image-name: tf-gpu.2-11
 
 jobs:
-  image-tag:
-    name: Get Image Tag
-    runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.generate-tag.outputs.tag }}
-      unique-id: ${{ steps.unique-id.unique-id }}
-    steps:
-      - id: generate-tag
-        run: echo "tag=$(date -u +'%Y-%m-%d')-release-${{ github.sha }}" >> "${GITHUB_OUTPUT}"
-      - id: unique-id
-        run: echo "unique-id=$(date +'%Y-%d-%m-%H-%M-%s')" >> $GITHUB_OUTPUT
+  # image-tag:
+  #   name: Get Image Tag
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     tag: ${{ steps.generate-tag.outputs.tag }}
+  #     unique-id: ${{ steps.unique-id.unique-id }}
+  #   steps:
+  #     - id: generate-tag
+  #       run: echo "tag=$(date -u +'%Y-%m-%d')-release-${{ github.sha }}" >> "${GITHUB_OUTPUT}"
+  #     - id: unique-id
+  #       run: echo "unique-id=$(date +'%Y-%d-%m-%H-%M-%s')" >> $GITHUB_OUTPUT
     
-  build-test-ml-container:
-    name: Build training container for new Python scripts
-    uses: 'viam-modules/classification-tflite/.github/workflows/build-test-ml-container.yml@main'
-    with:
-      image-tag: ${{ jobs.image-tag.outputs.tag }}
-      gcp-project-id: ${{ env.staging-gcp-project-id }}
-      service-account: app-service@staging-cloud-web-app.iam.gserviceaccount.com
-      container-name-suffix: ${{ jobs.image-tag.outputs.unique-id }}
-      training-image-name: us-central1-docker.pkg.dev/${{env.staging-gcp-project-id}}/mltraining/${{env.ml-image-name}}/${{ jobs.image-tag.outputs.tag }}
-    secrets:
-      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+  # build-test-ml-container:
+  #   name: Build training container for new Python scripts
+  #   uses: 'viam-modules/classification-tflite/.github/workflows/build-test-ml-container.yml@main'
+  #   with:
+  #     image-tag: ${{ jobs.image-tag.outputs.tag }}
+  #     gcp-project-id: ${{ env.staging-gcp-project-id }}
+  #     service-account: app-service@staging-cloud-web-app.iam.gserviceaccount.com
+  #     container-name-suffix: ${{ jobs.image-tag.outputs.unique-id }}
+  #     training-image-name: us-central1-docker.pkg.dev/${{env.staging-gcp-project-id}}/mltraining/${{env.ml-image-name}}/${{ jobs.image-tag.outputs.tag }}
+  #   secrets:
+  #     GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
 
   deploy-staging:
     runs-on: [ubuntu-latest]

@@ -50,7 +50,7 @@ runs:
         gcp_project_id: staging-cloud-web-app
       shell: bash
       run: |
-        docker pull ${{ inputs.training-image-base-name }}
+        docker build -t ${{ inputs.training-image-base-name }}
         docker tag ${{ inputs.training-image-base-name }} ${{ steps.set-training-image-var.outputs.image-uri }}
         docker tag ${{ inputs.training-image-base-name }} ${{ steps.set-training-image-var.outputs.image-latest-uri }}
         docker push ${{ inputs.training-image-base-name }} --all-tags
