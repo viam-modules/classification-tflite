@@ -26,10 +26,10 @@ jobs:
     timeout-minutes: 30
     
     steps:
-    - name: Deploy Model to Staging
+    - name: Deploy Model to Staging Test
       uses: viam-modules/classification-tflite/.github/workflows/actions/deploy@DATA-2821/workflows
       with:
-        training-image-base-name: us-central1-docker.pkg.dev/${{env.staging-gcp-project-id}}/mltraining/${{ env.ml-image-name}}
+        training-image-base-name: us-central1-docker.pkg.dev/${{env.staging-gcp-project-id}}/mltraining/${{env.ml-image-name}}
         GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
         gcp-project: ${{env.staging-gcp-project}}
   # deploy-to-prod:
