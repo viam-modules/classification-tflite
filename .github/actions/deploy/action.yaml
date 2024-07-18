@@ -42,7 +42,7 @@ runs:
       id: set-training-image-var
       shell: bash
       run: |
-        echo "image-uri=${{ inputs.training-image-base-name }}:${{ inputs.image-tag }} >> $GITHUB_OUTPUT
+        echo "image-uri=${{ inputs.training-image-base-name }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
         echo "image-latest-uri=${{ inputs.training-image-base-name }}:latest" >> $GITHUB_OUTPUT
 
     - name: Rename temp, tested staging ML container and push to staging Artifact Registry

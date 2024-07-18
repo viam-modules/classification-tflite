@@ -1,5 +1,5 @@
 # Install the 2.11 version of tensorflow
-FROM tensorflow/tensorflow:2.11.1-gpu
+FROM tensorflow/tensorflow:2.11.0-gpu
 
 # Install the dependencies
 RUN apt-get update && apt-get install libusb-1.0-0
