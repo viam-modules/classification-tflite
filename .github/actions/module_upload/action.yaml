@@ -17,7 +17,7 @@ inputs:
   type:
     type: string
     required: true
-    default: unspecified
+    default: "unspecified"
   version:
     type: string
     required: true
@@ -53,5 +53,5 @@ runs:
     - name: Push to Viam Registry
       shell: bash
       run: |
-        viam training-script upload --framework ${{inputs.framework}} --org-id ${{inputs.org_id}} --path dist/model-0.1.tar.gz --script-name ${{inputs.script_name}} \
-          --type ${{inputs.type}} --version ${{inputs.version}}
+        viam training-script upload --framework=${{inputs.framework}} --org-id=${{inputs.org_id}} --path=dist/model-0.1.tar.gz --script-name=${{inputs.script_name}} \
+          --type=${{inputs.type}} --version=${{inputs.version}}
