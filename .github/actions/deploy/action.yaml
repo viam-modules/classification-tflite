@@ -2,17 +2,26 @@
 
 description: 'Deploy App to Cloud Run'
 inputs:
-  training-image-base-name:
+  api_key_id:
     type: string 
     required: true
-    description: "App Image tag to use"
-  gcp-project:
+  api_key:
     type: string
     required: true
-  image-tag:
+  framework:
     type: string
     required: true
-  GCP_SA_KEY:
+  script_name:
+    type: string
+    required: true
+  type:
+    type: string
+    required: true
+    default: "unspecified"
+  version:
+    type: string
+    required: true
+  org_id:
     type: string
     required: true
 
@@ -24,33 +33,28 @@ runs:
   steps:
     - name: Check out code in app directory
       uses: actions/checkout@v3
-
-    - name: Auth against GCP
-      uses: google-github-actions/auth@v1
+    - uses: actions/setup-python@v3
       with:
-        credentials_json: ${{ inputs.GCP_SA_KEY }}
+        python-version: "3.9"
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
-
-    - name: Authorize Docker push
-      shell: bash
-      run:  |
-        gcloud auth configure-docker us-central1-docker.pkg.dev --project ${{ inputs.gcp-project }}
-
-    - name: Get new staging and latest staging ML container names
-      id: set-training-image-var
+    - name: Install Viam CLI
       shell: bash
       run: |
-        echo "image-uri=${{ inputs.training-image-base-name }}:${{ inputs.image-tag }}" >> $GITHUB_OUTPUT
-        echo "image-latest-uri=${{ inputs.training-image-base-name }}:latest" >> $GITHUB_OUTPUT
+        curl -o /usr/local/bin/viam https://storage.googleapis.com/packages.viam.com/apps/viam-cli/viam-cli-stable-linux-amd64
+        chmod a+rx /usr/local/bin/viam
 
-    - name: Rename temp, tested staging ML container and push to staging Artifact Registry
-      env:
-        gcp_project_id: staging-cloud-web-app
+    - name: Create training package
       shell: bash
       run: |
-        docker build -t ${{ inputs.training-image-base-name }} .
-        docker tag ${{ inputs.training-image-base-name }} ${{ steps.set-training-image-var.outputs.image-uri }}
-        docker tag ${{ inputs.training-image-base-name }} ${{ steps.set-training-image-var.outputs.image-latest-uri }}
-        docker push ${{ inputs.training-image-base-name }} --all-tags
+        python3 setup.py sdist --formats=gztar
+
+    - name: Login to Viam CLI
+      shell: bash
+      run: |
+        viam login api-key --key-id ${{ inputs.api_key_id }} --key ${{ inputs.api_key }}
+
+    - name: Push to Viam Registry
+      shell: bash
+      run: |
+        viam training-script upload --framework=${{inputs.framework}} --org-id=${{inputs.org_id}} --path=dist/model-0.1.tar.gz --script-name=${{inputs.script_name}} \
+          --type=${{inputs.type}} --version=${{inputs.version}}

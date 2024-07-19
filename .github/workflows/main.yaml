@@ -1,8 +1,6 @@
 name: Deploy ML Training Image
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, labeled]
   workflow_dispatch:
   push:
     branches: [main]
@@ -13,12 +11,6 @@ on:
         required: true
       API_KEY:
         required: true
-
-
-env:
-  prod-gcp-project-id: web-app-304613
-  staging-gcp-project-id: staging-cloud-web-app 
-  ml-image-name: tf-gpu.2-11
 
 jobs:
   deploy-staging:
@@ -34,11 +26,8 @@ jobs:
         echo "version-tag=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
         
     - name: Deploy Module to viam-dev Org
-      uses: viam-modules/classification-tflite/.github/actions/module_upload@DATA-2821/workflows
+      uses: viam-modules/classification-tflite/.github/actions/deploy@DATA-2821/workflows
       with:
-        training-image-base-name: us-central1-docker.pkg.dev/${{env.staging-gcp-project-id}}/mltraining/${{env.ml-image-name}}
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY_STAGING }}
-        gcp-project: ${{ env.staging-gcp-project-id }}
         api_key_id: ${{ secrets.API_KEY_ID }}
         api_key: ${{ secrets.API_KEY }}
         framework: tflite
