@@ -34,6 +34,12 @@ runs:
       with:
         python-version: "3.9"
 
+    - name: Install Viam CLI
+      shell: bash
+      run: |
+        curl -o /usr/local/bin/viam https://storage.googleapis.com/packages.viam.com/apps/viam-cli/viam-cli-stable-linux-amd64
+        chmod a+rx /usr/local/bin/viam
+
     - name: Create training package
       shell: bash
       run: |
