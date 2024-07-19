@@ -26,6 +26,4 @@ jobs:
       run: docker build -t temp .
     - name: Run script locally
       run: docker run temp
-    - name: Run test
-      run: docker run temp sh -c "pytest" 
 

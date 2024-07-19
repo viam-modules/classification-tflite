@@ -1,0 +1,51 @@
+# name: Deploy App to Cloud Run
+
+description: 'Deploy App to Cloud Run'
+inputs:
+  api_key_id:
+    type: string 
+    required: true
+  api_key:
+    type: string
+    required: true
+  framework:
+    type: string
+    required: true
+  script_name:
+    type: string
+    required: true
+  type:
+    type: string
+    required: true
+    default: unspecified
+  version:
+    type: string
+    required: true
+
+
+name: Deploy ML Script
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check out code in app directory
+      uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+
+    - name: Create training package
+      shell: bash
+      run: |
+        python3 setup.py sdist --formats=gztar
+
+    - name: Login to Viam CLI
+      shell: bash
+      run: |
+        viam login api-key --key-id ${{ inputs.api_key_id }} --key ${{ inputs.api_key }}
+
+    - name: Push to Viam Registry
+      shell: bash
+      run: |
+        viam training-script upload --framework ${{inputs.framework}} --org-id ${{inputs.org_id}} --path dist/model-0.1.tar.gz --script-name ${{inputs.script_name}} \
+          --type ${{inputs.type}} --version ${{inputs.version}}

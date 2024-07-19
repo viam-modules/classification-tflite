@@ -1,16 +1,18 @@
 name: Deploy ML Training Image
 
-# on:
 on:
   pull_request:
     types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
     secrets:
-      GCP_SA_KEY:
+      API_KEY_ID:
         required: true
-  # workflow_call:
-  #   secrets:
-  #     GCP_SA_KEY:
-  #       required: true
+      API_KEY:
+        required: true
 
 
 env:
@@ -26,17 +28,22 @@ jobs:
     timeout-minutes: 30
     
     steps:
-    - name: Get Image Tag
+    - name: Get Version Tag
       id: get-image-tag
       run: |
-        echo "image-tag=$(date -u +'%Y-%m-%d')-dev-$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        echo "version-tag=$(date -u +'%Y-%m-%d')" >> $GITHUB_OUTPUT
         
-    - name: Deploy Model to Staging Test
-      uses: viam-modules/classification-tflite/.github/actions/deploy@DATA-2821/workflows
+    - name: Deploy Module to viam-dev Org
+      uses: viam-modules/classification-tflite/.github/actions/module_upload@DATA-2821/workflows
       with:
         training-image-base-name: us-central1-docker.pkg.dev/${{env.staging-gcp-project-id}}/mltraining/${{env.ml-image-name}}
-        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+        GCP_SA_KEY: ${{ secrets.GCP_SA_KEY_STAGING }}
         gcp-project: ${{ env.staging-gcp-project-id }}
-        image-tag: ${{ steps.get-image-tag.outputs.image-tag }}
+        api_key_id: ${{ secrets.API_KEY_ID }}
+        api_key: ${{ secrets.API_KEY }}
+        framework: tflite
+        script_name: classification-tflite
+        type: 
+        version: ${{ steps.get-image-tag.outputs.version-tag }} 
 
 
