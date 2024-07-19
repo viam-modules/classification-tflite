@@ -21,6 +21,9 @@ inputs:
   version:
     type: string
     required: true
+  org_id:
+    type: string
+    required: true
 
 
 name: Deploy ML Script
@@ -54,4 +57,4 @@ runs:
       shell: bash
       run: |
         viam training-script upload --framework=${{inputs.framework}} --org-id=${{inputs.org_id}} --path=dist/model-0.1.tar.gz --script-name=${{inputs.script_name}} \
-          --type=${{inputs.type}} --version=${{inputs.version}}
+          --type=${{inputs.type}} --version=${{inputs.version}} --org-id=

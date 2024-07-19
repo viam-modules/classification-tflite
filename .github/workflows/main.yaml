@@ -45,5 +45,6 @@ jobs:
         script_name: classification-tflite
         type: 
         version: ${{ steps.get-image-tag.outputs.version-tag }} 
+        org_id: e76d1b3b-0468-4efd-bb7f-fb1d2b352fcb
 
 
