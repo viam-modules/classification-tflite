@@ -11,7 +11,6 @@ setup(
         "keras-cv==0.5.0",
         "Keras-Preprocessing==1.1.2",
         "tflite-support",
-        "pytest",
     ],
     include_package_data=True,
 )

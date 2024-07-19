@@ -24,8 +24,6 @@ jobs:
       run: black . --check
     - name: Docker Build
       run: docker build -t temp .
-    - name: Run script locally
+    - name: Run script locally with unit test
       run: docker run temp
-    - name: Test
-      run: docker run temp sh -c "pytest" 
 
