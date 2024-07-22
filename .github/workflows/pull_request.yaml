@@ -10,5 +10,5 @@ on:
 
 jobs:
   build:
-    uses: viam-modules/common-workflows/.github/workflows/pull_request.yml@init
+    uses: viam-modules/common-workflows/.github/workflows/pull_request.yaml@init
 
