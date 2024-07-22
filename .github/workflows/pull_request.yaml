@@ -28,6 +28,5 @@ jobs:
       run: docker run temp
     - name: Docker cleanup
       run: |
-        docker stop temp
         docker rmi -f temp
 
