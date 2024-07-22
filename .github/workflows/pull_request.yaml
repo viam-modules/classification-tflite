@@ -12,21 +12,5 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install black pytest
-    - name: Lint
-      run: black . --check
-    - name: Docker Build
-      run: docker build -t temp .
-    - name: Run script locally with unit test
-      run: docker run temp
-    - name: Docker cleanup
-      run: |
-        docker rmi -f temp
+    - uses: viam-modules/common-workflows/.github/workflows/pull_request.yml@init
 
