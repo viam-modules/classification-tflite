@@ -27,5 +27,7 @@ jobs:
     - name: Run script locally with unit test
       run: docker run temp
     - name: Docker cleanup
-      run: docker rmi temp
+      run: |
+        docker stop temp
+        docker rmi -f temp
 
