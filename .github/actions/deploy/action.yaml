@@ -1,6 +1,6 @@
-# name: Deploy App to Cloud Run
+# name: Deploy New Training Script to viam-dev Org
 
-description: 'Deploy App to Cloud Run'
+description: 'Deploy New Training Script to viam-dev Org'
 inputs:
   api_key_id:
     type: string 
@@ -10,13 +10,12 @@ inputs:
     required: true
   framework:
     type: string
-    required: true
+    default: "unspecified"
   script_name:
     type: string
     required: true
   type:
     type: string
-    required: true
     default: "unspecified"
   version:
     type: string
@@ -31,11 +30,11 @@ name: Deploy ML Script
 runs:
   using: "composite"
   steps:
-    - name: Check out code in app directory
+    - name: Check out training script code
       uses: actions/checkout@v3
     - uses: actions/setup-python@v3
       with:
-        python-version: "3.9"
+        python-version: "3.10"
 
     - name: Install Viam CLI
       shell: bash
@@ -57,4 +56,4 @@ runs:
       shell: bash
       run: |
         viam training-script upload --framework=${{inputs.framework}} --org-id=${{inputs.org_id}} --path=dist/model-0.1.tar.gz --script-name=${{inputs.script_name}} \
-          --type=${{inputs.type}} --version=${{inputs.version}}
+          --type=${{inputs.type}} --version=${{inputs.version}} --type=${{inputs.type}}
