@@ -12,5 +12,5 @@ jobs:
   build:
     uses: viam-modules/common-workflows/.github/workflows/lint_and_test.yaml@init
     with:
-      script_name: scripts/test.sh
+      test_script_name: scripts/test.sh
 
