@@ -15,5 +15,5 @@ if __name__ == "__main__":
     # Open the file in write mode
     with open(file_path, "w") as file:
         # Write content to the file
-        file.write("Hello, this is a new text file created using open() function")
+        file.write("Hello, this is a new text file created using open() function.")
         print(f"I wrote to {file_path}")
