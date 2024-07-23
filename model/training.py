@@ -37,6 +37,7 @@ def parse_filenames_and_labels_from_json(
     filename: str, all_labels: ty.List[str], model_type: str
 ) -> ty.Tuple[ty.List[str], ty.List[str]]:
     """Load and parse JSON file to return image filenames and corresponding labels.
+       The JSON file contains lines, where each line has the key "image_path" and "classification_annotations".
     Args:
         filename: JSONLines file containing filenames and labels
         all_labels: list of all N_LABELS
@@ -188,11 +189,15 @@ def create_dataset_classification(
     # Create a first dataset of file paths and labels
     if model_type == single_label:
         dataset = tf.data.Dataset.from_tensor_slices((filenames, labels))
-    else:
+    elif model_type == multi_label:
         dataset = tf.data.Dataset.from_tensor_slices(
             (filenames, tf.ragged.constant(labels))
         )
+    else:
+        return None, None
 
+    # Apply a map to the dataset that converts filenames and text labels
+    # to normalized images and encoded labels, respectively.
     def mapping_fnc(x, y):
         return parse_image_and_encode_labels(x, y, all_labels, model_type, img_size)
 
@@ -257,6 +262,9 @@ def build_and_compile_classification(
     base_model = tf.keras.applications.EfficientNetB0(
         input_shape=input_shape, include_top=False, weights="imagenet"
     )
+    # Freeze the weights of the base model. This allows to use transfer learning
+    # to train only the top layers of the model. Setting the base model to be trainable
+    # would allow for all layers, not just the top, to be retrained.
     base_model.trainable = False
     # Add custom layers
     global_pooling = tf.keras.layers.GlobalAveragePooling2D()
