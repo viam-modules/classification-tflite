@@ -1,15 +1,11 @@
 name: Deploy ML Training Image
 
-# on:
-#   workflow_dispatch:
-#   push:
-#     branches: [main]
-#     paths-ignore:
-#       - 'README.md'
-
 on:
-  pull_request:
-    types: [opened, synchronize, reopened, labeled]
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'README.md'
 
 jobs:
   deploy-staging:
@@ -17,4 +13,5 @@ jobs:
     with:
       framework: tflite
       script_name: classification-tflite
+      model_type: tflite
     secrets: inherit
