@@ -14,5 +14,3 @@ jobs:
       framework: tflite
       script_name: classification-tflite
     secrets: inherit
-
-
