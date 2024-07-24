@@ -1,0 +1,16 @@
+name: Pull Request Update
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled]
+
+jobs:
+  build:
+    uses: viam-modules/common-workflows/.github/workflows/lint_and_test.yaml@main
+    with:
+      test_script_name: scripts/test.sh
+
