@@ -17,5 +17,5 @@ jobs:
     with:
       framework: tflite
       script_name: classification-tflite
-      model_type: tflite
+      model_type: single_label_classification
     secrets: inherit

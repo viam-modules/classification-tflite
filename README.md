@@ -25,4 +25,4 @@ jobs:
 Upon merging to `main` a workflow will automatically update the module in `viam-dev` allowing for people to use your latest changes. The configs you can (but shouldn't!) play with are:
 1. framework -- DO NOT CHANGE THIS! This is a tflite script and will always be (see: repo name)
 2. script_name -- This is what the name will be in the registry. If you change this, it will make a new training script in the registry. Be aware
-3. model_type -- DO NOT CHANGE THIS!
+3. model_type -- single_label_classification
