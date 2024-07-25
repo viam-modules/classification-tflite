@@ -13,4 +13,4 @@ jobs:
     uses: viam-modules/common-workflows/.github/workflows/lint_and_test.yaml@dataset-file
     with:
       test_script_name: scripts/test.sh
-  secrets: inherit
+    secrets: inherit
