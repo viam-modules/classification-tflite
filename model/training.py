@@ -370,7 +370,7 @@ if __name__ == "__main__":
     # Read dataset file, labels should be changed according to the desired model output.
     LABELS = ["orange_triangle", "blue_star"]
     # The model type can be changed based on whether we want the model to output one label per image or multiple labels per image
-    model_type = multi_label
+    model_type = single_label
     image_filenames, image_labels = parse_filenames_and_labels_from_json(
         DATA_JSON, LABELS, model_type
     )
