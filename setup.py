@@ -4,6 +4,7 @@ setup(
     name="model",
     version="0.1",
     packages=find_packages(),
+    include_package_data=True,
     install_requires=[
         "google-cloud-aiplatform",
         "google-cloud-storage",
@@ -12,5 +13,4 @@ setup(
         "Keras-Preprocessing==1.1.2",
         "tflite-support",
     ],
-    include_package_data=True,
 )
