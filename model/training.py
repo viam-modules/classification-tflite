@@ -25,14 +25,15 @@ TFLITE_OPS = [
 
 
 def parse_args():
-    """Dataset file and model output directory are required parameters. These must be parsed as command line
-    arguments and then used as the model input and output, respectively.
+    """Returns dataset file, model output directory, and num_epochs if present. These must be parsed as command line
+    arguments and then used as the model input and output, respectively. The number of epochs can be used to optionally override the default.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument("--dataset_file", dest="data_json", type=str)
     parser.add_argument("--model_output_directory", dest="model_dir", type=str)
+    parser.add_argument("--num_epochs", dest="num_epochs", type=int)
     args = parser.parse_args()
-    return args.data_json, args.model_dir
+    return args.data_json, args.model_dir, args.num_epochs
 
 
 def parse_filenames_and_labels_from_json(
@@ -347,7 +348,6 @@ def save_tflite_classification(
 
 
 if __name__ == "__main__":
-    DATA_JSON, MODEL_DIR = parse_args()
     # Set up compute device strategy. If GPUs are available, they will be used
     if len(tf.config.list_physical_devices("GPU")) > 0:
         strategy = tf.distribute.OneDeviceStrategy(device="/gpu:0")
@@ -355,8 +355,7 @@ if __name__ == "__main__":
         strategy = tf.distribute.OneDeviceStrategy(device="/cpu:0")
 
     IMG_SIZE = (256, 256)
-    # Epochs and batch size can be adjusted according to the training job.
-    EPOCHS = 2
+    # Batch size, buffer size, epochs can be adjusted according to the training job.
     BATCH_SIZE = 16
     SHUFFLE_BUFFER_SIZE = 32
     AUTOTUNE = (
@@ -366,6 +365,9 @@ if __name__ == "__main__":
     # Model constants
     NUM_WORKERS = strategy.num_replicas_in_sync
     GLOBAL_BATCH_SIZE = BATCH_SIZE * NUM_WORKERS
+
+    DATA_JSON, MODEL_DIR, num_epochs = parse_args()
+    EPOCHS = 200 if num_epochs == None or 0 else num_epochs
 
     # Read dataset file, labels should be changed according to the desired model output.
     LABELS = ["orange_triangle", "blue_star"]
