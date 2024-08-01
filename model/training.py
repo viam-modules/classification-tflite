@@ -367,7 +367,7 @@ if __name__ == "__main__":
     GLOBAL_BATCH_SIZE = BATCH_SIZE * NUM_WORKERS
 
     DATA_JSON, MODEL_DIR, num_epochs = parse_args()
-    EPOCHS = 200 if num_epochs == None or 0 else num_epochs
+    EPOCHS = 200 if num_epochs is None or 0 else int(num_epochs)
 
     # Read dataset file, labels should be changed according to the desired model output.
     LABELS = ["orange_triangle", "blue_star"]

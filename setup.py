@@ -9,7 +9,7 @@ setup(
         "google-cloud-aiplatform",
         "google-cloud-storage",
         "keras==2.11.0",
-        "keras-cv==0.5.0",
+        "keras-cv==0.5.1",
         "Keras-Preprocessing==1.1.2",
         "tflite-support",
     ],
