@@ -11,6 +11,5 @@ setup(
         "keras==2.14.0",
         "keras-cv==0.5.1",
         "Keras-Preprocessing==1.1.2",
-        "tflite-support==0.4.4",
     ],
 )
