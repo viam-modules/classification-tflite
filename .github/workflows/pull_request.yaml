@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    uses: viam-modules/common-workflows/.github/workflows/lint_and_test.yaml@main
+    uses: viam-modules/common-workflows/.github/workflows/lint_and_test.yaml@remove-dependencie
     with:
       test_script_name: scripts/test.sh
     secrets: inherit
