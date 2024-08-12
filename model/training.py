@@ -6,17 +6,12 @@ import tensorflow as tf
 from keras import Model
 import numpy as np
 
-from tflite_support.metadata_writers import image_classifier
-from tflite_support.metadata_writers import writer_utils
 
 single_label = "MODEL_TYPE_SINGLE_LABEL_CLASSIFICATION"
 multi_label = "MODEL_TYPE_MULTI_LABEL_CLASSIFICATION"
 labels_filename = "labels.txt"
 unknown_label = "UNKNOWN"
 
-# Normalization parameters are required when reprocessing the image.
-_INPUT_NORM_MEAN = 127.5
-_INPUT_NORM_STD = 127.5
 
 TFLITE_OPS = [
     tf.lite.OpsSet.TFLITE_BUILTINS,  # enable TensorFlow Lite ops.
@@ -332,19 +327,10 @@ def save_tflite_classification(
     converter.target_spec.supported_ops = TFLITE_OPS
     tflite_model = converter.convert()
 
-    ImageClassifierWriter = image_classifier.MetadataWriter
-    # Task Library expects label files that are in the same format as the one below.
-    labels_file = os.path.join(model_dir, labels_filename)
-
-    # Create the metadata writer.
-    writer = ImageClassifierWriter.create_for_inference(
-        tflite_model, [_INPUT_NORM_MEAN], [_INPUT_NORM_STD], [labels_file]
-    )
-
     filename = os.path.join(model_dir, f"{model_name}.tflite")
-    # Populate the metadata into the model.
-    # Save the model to GCS
-    writer_utils.save_file(writer.populate(), filename)
+    # Writing the model buffer into a file.
+    with open(filename, "wb") as f:
+        f.write(tflite_model)
 
 
 if __name__ == "__main__":
@@ -367,7 +353,7 @@ if __name__ == "__main__":
     GLOBAL_BATCH_SIZE = BATCH_SIZE * NUM_WORKERS
 
     DATA_JSON, MODEL_DIR, num_epochs = parse_args()
-    EPOCHS = 200 if num_epochs == None or 0 else num_epochs
+    EPOCHS = 200 if num_epochs is None or 0 else int(num_epochs)
 
     # Read dataset file, labels should be changed according to the desired model output.
     LABELS = ["orange_triangle", "blue_star"]
