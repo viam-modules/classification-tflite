@@ -27,8 +27,10 @@ def parse_args():
     parser.add_argument("--dataset_file", dest="data_json", type=str)
     parser.add_argument("--model_output_directory", dest="model_dir", type=str)
     parser.add_argument("--num_epochs", dest="num_epochs", type=int)
+    parser.add_argument('--labels', dest="labels", type=str, required=False, help='Comma-separated list of labels')
+    parser.add_argument("--model_type", dest="model_type", type=str)
     args = parser.parse_args()
-    return args.data_json, args.model_dir, args.num_epochs
+    return args.data_json, args.model_dir, args.num_epochs, args.labels, args.model_type
 
 
 def parse_filenames_and_labels_from_json(
@@ -352,13 +354,23 @@ if __name__ == "__main__":
     NUM_WORKERS = strategy.num_replicas_in_sync
     GLOBAL_BATCH_SIZE = BATCH_SIZE * NUM_WORKERS
 
-    DATA_JSON, MODEL_DIR, num_epochs = parse_args()
+    DATA_JSON, MODEL_DIR, num_epochs, labels, model_type = parse_args()
     EPOCHS = 200 if num_epochs is None or 0 else int(num_epochs)
+    if EPOCHS < 0:
+        raise ValueError("Invalid number of epochs, must be a positive nonzero number")
 
     # Read dataset file, labels should be changed according to the desired model output.
-    LABELS = ["orange_triangle", "blue_star"]
+    LABELS = ["orange_triangle", "blue_star"] if labels is None else [label.strip() for label in labels.split(',')]
+
     # The model type can be changed based on whether we want the model to output one label per image or multiple labels per image
-    model_type = single_label
+    if model_type == "single_label":
+        model_type = single_label
+    elif model_type == "multi_label":
+        model_type = multi_label
+    elif model_type == "" or model_type == None:
+        model_type = single_label
+    else:
+        raise ValueError("Invalid model_type:", model_type, ", valid inputs are single_label or multi_label")
     image_filenames, image_labels = parse_filenames_and_labels_from_json(
         DATA_JSON, LABELS, model_type
     )
