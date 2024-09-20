@@ -27,7 +27,7 @@ def parse_args():
     parser.add_argument("--dataset_file", dest="data_json", type=str)
     parser.add_argument("--model_output_directory", dest="model_dir", type=str)
     parser.add_argument("--num_epochs", dest="num_epochs", type=int)
-    parser.add_argument('--labels', dest="labels", type=str, required=False, help='Comma-separated list of labels')
+    parser.add_argument('--labels', dest="labels", type=str, required=False, help='Slash(/)-separated list of labels')
     parser.add_argument("--model_type", dest="model_type", type=str)
     args = parser.parse_args()
     return args.data_json, args.model_dir, args.num_epochs, args.labels, args.model_type
@@ -360,8 +360,7 @@ if __name__ == "__main__":
         raise ValueError("Invalid number of epochs, must be a positive nonzero number")
 
     # Read dataset file, labels should be changed according to the desired model output.
-    LABELS = ["orange_triangle", "blue_star"] if labels is None else [label.strip() for label in labels.split(',')]
-
+    LABELS = ["orange_triangle", "blue_star"] if labels is None else [label.strip() for label in labels.split('/')]
     # The model type can be changed based on whether we want the model to output one label per image or multiple labels per image
     if model_type == "single_label":
         model_type = single_label
