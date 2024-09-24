@@ -7,6 +7,8 @@ from keras import Model
 import numpy as np
 
 
+# Hello, this is a test. 
+
 single_label = "MODEL_TYPE_SINGLE_LABEL_CLASSIFICATION"
 multi_label = "MODEL_TYPE_MULTI_LABEL_CLASSIFICATION"
 labels_filename = "labels.txt"
