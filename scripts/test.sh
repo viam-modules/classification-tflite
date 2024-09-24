@@ -1,9 +1,7 @@
 #!/bin/sh
 
 cleanup() {
-    rm saved_model.pb
-    rm fingerprint.pb
-    rm -rf variables
+    rm -f labels.txt classification_model.tflite
 }
 
 python3 setup.py sdist --formats=gztar
