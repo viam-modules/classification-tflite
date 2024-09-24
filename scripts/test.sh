@@ -19,3 +19,4 @@ cleanup()
 
 python3 -m model.training --dataset_file=dataset.jsonl --model_output_directory=. --num_epochs=2 --model_type=multi_label
 pytest tests/
+
