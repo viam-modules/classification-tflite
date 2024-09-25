@@ -38,7 +38,13 @@ def parse_args(args):
     )
     parser.add_argument("--model_type", dest="model_type", type=str)
     parsed_args = parser.parse_args(args)
-    return parsed_args.data_json, parsed_args.model_dir, parsed_args.num_epochs, parsed_args.labels, parsed_args.model_type
+    return (
+        parsed_args.data_json,
+        parsed_args.model_dir,
+        parsed_args.num_epochs,
+        parsed_args.labels,
+        parsed_args.model_type,
+    )
 
 
 def parse_filenames_and_labels_from_json(
