@@ -374,11 +374,7 @@ if __name__ == "__main__":
         raise ValueError("Invalid number of epochs, must be a positive nonzero number")
 
     # Read dataset file, labels should be changed according to the desired model output.
-    LABELS = (
-        ["orange_triangle", "blue_star"]
-        if labels is None
-        else labels
-    )
+    LABELS = ["orange_triangle", "blue_star"] if labels is None else labels
     # The model type can be changed based on whether we want the model to output one label per image or multiple labels per image
     if model_type == "single_label":
         model_type = single_label
