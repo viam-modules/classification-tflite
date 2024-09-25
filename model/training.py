@@ -377,7 +377,7 @@ if __name__ == "__main__":
     LABELS = (
         ["orange_triangle", "blue_star"]
         if labels is None
-        else [label.strip() for label in labels.split("/")]
+        else labels
     )
     # The model type can be changed based on whether we want the model to output one label per image or multiple labels per image
     if model_type == "single_label":
