@@ -1,7 +1,7 @@
 import model.training
 
 
-def test_label_change():
+def test_parse_args():
     args = [
         "--dataset_file",
         "test_data.json",
