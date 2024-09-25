@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import sys
 import typing as ty
 import tensorflow as tf
 from keras import Model
@@ -19,7 +20,7 @@ TFLITE_OPS = [
 ]
 
 
-def parse_args():
+def parse_args(args):
     """Returns dataset file, model output directory, and num_epochs if present. These must be parsed as command line
     arguments and then used as the model input and output, respectively. The number of epochs can be used to optionally override the default.
     """
@@ -30,13 +31,14 @@ def parse_args():
     parser.add_argument(
         "--labels",
         dest="labels",
+        nargs="+",
         type=str,
         required=False,
-        help="Slash(/)-separated list of labels",
+        help="Space-separated list of labels",
     )
     parser.add_argument("--model_type", dest="model_type", type=str)
-    args = parser.parse_args()
-    return args.data_json, args.model_dir, args.num_epochs, args.labels, args.model_type
+    parsed_args = parser.parse_args(args)
+    return parsed_args.data_json, parsed_args.model_dir, parsed_args.num_epochs, parsed_args.labels, parsed_args.model_type
 
 
 def parse_filenames_and_labels_from_json(
@@ -360,7 +362,7 @@ if __name__ == "__main__":
     NUM_WORKERS = strategy.num_replicas_in_sync
     GLOBAL_BATCH_SIZE = BATCH_SIZE * NUM_WORKERS
 
-    DATA_JSON, MODEL_DIR, num_epochs, labels, model_type = parse_args()
+    DATA_JSON, MODEL_DIR, num_epochs, labels, model_type = parse_args(sys.argv[1:])
     EPOCHS = 200 if num_epochs is None or 0 else int(num_epochs)
     if EPOCHS < 0:
         raise ValueError("Invalid number of epochs, must be a positive nonzero number")
