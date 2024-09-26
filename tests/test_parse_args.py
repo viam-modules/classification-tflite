@@ -21,7 +21,9 @@ def test_parse_args():
         model_dir == "test_output/"
     ), f"Expected model_output_directory to be 'test_output/', got {model_dir}"
     assert num_epochs == 5, f"Expected num_epochs to be 5, got {num_epochs}"
-    assert labels == "'label_1 label_2'", f"Expected labels to be 'label_1 label_2', got {labels}"
+    assert (
+        labels == "'label_1 label_2'"
+    ), f"Expected labels to be 'label_1 label_2', got {labels}"
     assert (
         model_type == "multi_label"
     ), f"Expected model_type to be multi_label, got {model_type}"
