@@ -4,6 +4,13 @@
 
 We test this when you cut a PR by running `scripts/test.sh`. This in turn just runs the model and then runs `pytest` which will run everything in `tests/`. Our testing here isn't overly complex and we have no code coverage or anything so please keep up good hygiene and if you make a change to `training.py` that would requires a test (i.e. you've made a change and you had to manually test something different), add that test condition somewhere to `tests/`
 
+## Usage
+In order to submit this script with custom arguments, you must use the Viam CLI. One such example is included below:
+```
+viam train submit custom with-upload --dataset-id=<DATASET-ID> --model-org-id=<ORG-ID> --model-name=classification --model-type=<DESIRED_TYPE> --framework=tflite --path=<REPO-TAR-PATH> --script-name=classification_script --args=num_epochs=3,labels="'green_square blue_star'"
+```
+Be sure to note that labels is surrounded with single quotes then enclosed with double quotes to ensure it is submitted properly. If you are running the script from a previous version or from the website, you will not be able to use custom arguments. 
+
 ## Workflows
 
 ### Pull Request
