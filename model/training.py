@@ -33,7 +33,8 @@ def parse_args(args):
         dest="labels",
         type=str,
         required=False,
-        help="Space-separated list of labels",
+        help="Space-separated list of labels, MUST be enclosed in single quotes",
+        # ex: 'green_square blue_triangle'
     )
     parser.add_argument("--model_type", dest="model_type", type=str)
     parsed_args = parser.parse_args(args)
