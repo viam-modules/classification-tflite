@@ -5,3 +5,9 @@
 # Unit test / coverage reports
 .cache
 .pytest_cache/
+
+data/
+
+env/
+
+build/

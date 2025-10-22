@@ -12,6 +12,7 @@ single_label = "MODEL_TYPE_SINGLE_LABEL_CLASSIFICATION"
 multi_label = "MODEL_TYPE_MULTI_LABEL_CLASSIFICATION"
 labels_filename = "labels.txt"
 unknown_label = "UNKNOWN"
+ROUNDING_DIGITS = 5
 
 
 TFLITE_OPS = [
@@ -37,6 +38,7 @@ def parse_args(args):
         # ex: 'green_square blue_triangle'
     )
     parser.add_argument("--model_type", dest="model_type", type=str)
+    print("args", args)
     parsed_args = parser.parse_args(args)
     return (
         parsed_args.data_json,
@@ -96,8 +98,9 @@ def get_neural_network_params(
         loss = tf.keras.losses.categorical_crossentropy
         metrics = (
             tf.keras.metrics.CategoricalAccuracy(),
-            tf.keras.metrics.Precision(),
-            tf.keras.metrics.Recall(),
+            # tf.keras.metrics.Precision(),
+            # tf.keras.metrics.Recall(),
+            # tf.keras.metrics.AUC(),
         )
     # Multi-label Classification
     elif model_type == multi_label:
@@ -237,16 +240,26 @@ def create_dataset_classification(
     # If the size of training data is smaller than the batch size,
     # batch the data to expand the dimensions by a length 1 axis.
     # This will ensure that the training data is valid model input
+    # Calculate batch sizes for train and test
     train_batch_size = batch_size if batch_size < train_size else train_size
+    test_size = len(filenames) - train_size
+    test_batch_size = batch_size if batch_size < test_size else test_size
+
+    # Batch both training and test datasets
     if model_type == single_label:
         train_dataset = train_dataset.batch(train_batch_size)
+        test_dataset = test_dataset.batch(test_batch_size)
     else:
         train_dataset = train_dataset.apply(
             tf.data.experimental.dense_to_ragged_batch(train_batch_size)
         )
+        test_dataset = test_dataset.apply(
+            tf.data.experimental.dense_to_ragged_batch(test_batch_size)
+        )
 
     # Fetch batches in the background while the model is training.
     train_dataset = train_dataset.prefetch(buffer_size=prefetch_buffer_size)
+    test_dataset = test_dataset.prefetch(buffer_size=prefetch_buffer_size)
 
     return train_dataset, test_dataset
 
@@ -307,6 +320,57 @@ def build_and_compile_classification(
         metrics=[metrics],
     )
     return model
+
+def get_rounded_number(val: tf.Tensor, rounding_digits: int) -> tf.Tensor:
+    if np.isnan(val) or np.isinf(val):
+        return -1
+    else:
+        return float(round(val, rounding_digits))
+
+# Ending metrics
+def save_model_metrics_classification(
+    loss_history: tf.keras.callbacks.History,
+    model_dir: str,
+    model: Model,
+    test_dataset: tf.data.Dataset,
+) -> None:
+    # Evaluate on test dataset directly
+    test_metrics = model.evaluate(test_dataset, return_dict=True)
+
+    metrics = {}
+    # Save training metrics from history
+    for key in loss_history.history:
+        metrics["train_" + key] = loss_history.history[key] 
+
+    # Save test metrics
+    for key in test_metrics:
+        metrics["test_" + key] = get_rounded_number(test_metrics[key], ROUNDING_DIGITS)
+
+    print("metrics", metrics)
+    # Save the metrics as JSON
+    filename = os.path.join(model_dir, "model_metrics.json")
+    with open(filename, "w") as f:
+        json.dump(metrics, f, ensure_ascii=False)
+
+# Metrics throughout training
+# def save_model_metrics_classification(
+#     loss_history: tf.keras.callbacks.History,
+#     model_dir: str,
+#     model: Model,
+#     test_dataset: tf.data.Dataset,
+# ) -> None:
+#     test_images = np.array([x for x, _ in test_dataset])
+#     test_labels = np.array([y for _, y in test_dataset])
+
+#     test_metrics = model.evaluate(test_images, test_labels, return_dict=True)
+
+#     filename = os.path.join(model_dir, "model_metrics.json")
+#     with open(filename, "w") as f:
+#         metrics = {
+#             "history": loss_history.history,
+#             "test_metrics": test_metrics
+#         }
+#         json.dump(metrics, f, ensure_ascii=False)
 
 
 def save_labels(labels: ty.List[str], model_dir: str) -> None:
@@ -417,9 +481,27 @@ if __name__ == "__main__":
         )
 
     # Train model on data
+    # Create TensorBoard callback with histogram visualization
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(
+        log_dir=os.path.join(MODEL_DIR, "train"),
+        # update_freq='epoch'  # Update metrics every epoch
+    )
+
     loss_history = model.fit(
         x=train_dataset,
+        validation_data=test_dataset,  # Add validation data
         epochs=EPOCHS,
+        # callbacks=[tensorboard_callback],
+        verbose=1  # Show progress bar and metrics
+    )
+    print("loss_history", loss_history.history)
+
+    # Save trained model metrics to JSON file
+    save_model_metrics_classification(
+        loss_history,
+        MODEL_DIR,
+        model,
+        test_dataset,
     )
 
     # Save labels.txt file
