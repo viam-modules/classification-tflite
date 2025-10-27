@@ -335,22 +335,22 @@ def save_model_metrics_classification(
     test_dataset: tf.data.Dataset,
 ) -> None:
     # Evaluate on test dataset directly
-    test_metrics = model.evaluate(test_dataset, return_dict=True)
+    # test_metrics = model.evaluate(test_dataset, return_dict=True)
 
-    metrics = {}
+    # metrics = {}
     # Save training metrics from history
-    for key in loss_history.history:
-        metrics["train_" + key] = loss_history.history[key] 
+    # for key in loss_history.history:
+    #     metrics["train_" + key] = loss_history.history[key] 
 
-    # Save test metrics
-    for key in test_metrics:
-        metrics["test_" + key] = get_rounded_number(test_metrics[key], ROUNDING_DIGITS)
+    # # Save test metrics
+    # for key in test_metrics:
+    #     metrics["test_" + key] = get_rounded_number(test_metrics[key], ROUNDING_DIGITS)
 
-    print("metrics", metrics)
+    print("metrics", loss_history.history)
     # Save the metrics as JSON
     filename = os.path.join(model_dir, "model_metrics.json")
     with open(filename, "w") as f:
-        json.dump(metrics, f, ensure_ascii=False)
+        json.dump(loss_history.history, f, ensure_ascii=False)
 
 # Metrics throughout training
 # def save_model_metrics_classification(
@@ -482,10 +482,10 @@ if __name__ == "__main__":
 
     # Train model on data
     # Create TensorBoard callback with histogram visualization
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(
-        log_dir=os.path.join(MODEL_DIR, "train"),
+    # tensorboard_callback = tf.keras.callbacks.TensorBoard(
+        # log_dir=os.path.join(MODEL_DIR, "train"),
         # update_freq='epoch'  # Update metrics every epoch
-    )
+    # )
 
     loss_history = model.fit(
         x=train_dataset,
