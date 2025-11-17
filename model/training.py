@@ -5,7 +5,7 @@ import sys
 import typing as ty
 
 # Set environment variable to use legacy Keras 2 with TensorFlow 2.16
-os.environ['TF_USE_LEGACY_KERAS'] = '1'
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
 
 import tensorflow as tf
 import tf_keras as keras
@@ -125,9 +125,7 @@ def preprocessing_layers_classification(
     """
     preprocessing = keras.Sequential(
         [
-            keras.layers.Resizing(
-                img_size[0], img_size[1], crop_to_aspect_ratio=False
-            ),
+            keras.layers.Resizing(img_size[0], img_size[1], crop_to_aspect_ratio=False),
         ]
     )
     return preprocessing
