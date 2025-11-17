@@ -3,8 +3,12 @@ import json
 import os
 import sys
 import typing as ty
+
+# Set environment variable to use legacy Keras 2 with TensorFlow 2.16
+os.environ["TF_USE_LEGACY_KERAS"] = "1"
+
 import tensorflow as tf
-from keras import Model
+import tf_keras as keras
 import numpy as np
 
 
@@ -93,21 +97,21 @@ def get_neural_network_params(
     if model_type == single_label:
         units = num_classes
         activation = "softmax"
-        loss = tf.keras.losses.categorical_crossentropy
+        loss = keras.losses.categorical_crossentropy
         metrics = (
-            tf.keras.metrics.CategoricalAccuracy(),
-            tf.keras.metrics.Precision(),
-            tf.keras.metrics.Recall(),
+            keras.metrics.CategoricalAccuracy(),
+            keras.metrics.Precision(),
+            keras.metrics.Recall(),
         )
     # Multi-label Classification
     elif model_type == multi_label:
         units = num_classes
         activation = "sigmoid"
-        loss = tf.keras.losses.binary_crossentropy
+        loss = keras.losses.binary_crossentropy
         metrics = (
-            tf.keras.metrics.BinaryAccuracy(),
-            tf.keras.metrics.Precision(),
-            tf.keras.metrics.Recall(),
+            keras.metrics.BinaryAccuracy(),
+            keras.metrics.Precision(),
+            keras.metrics.Recall(),
         )
     return units, activation, loss, metrics
 
@@ -119,11 +123,9 @@ def preprocessing_layers_classification(
     Args:
         img_size: optional 2D shape of image
     """
-    preprocessing = tf.keras.Sequential(
+    preprocessing = keras.Sequential(
         [
-            tf.keras.layers.Resizing(
-                img_size[0], img_size[1], crop_to_aspect_ratio=False
-            ),
+            keras.layers.Resizing(img_size[0], img_size[1], crop_to_aspect_ratio=False),
         ]
     )
     return preprocessing
@@ -139,11 +141,11 @@ def encoded_labels(
         model_type: string single_label or multi_label
     """
     if model_type == single_label:
-        encoder = tf.keras.layers.StringLookup(
+        encoder = keras.layers.StringLookup(
             vocabulary=all_labels, num_oov_indices=0, output_mode="one_hot"
         )
     elif model_type == multi_label:
-        encoder = tf.keras.layers.StringLookup(
+        encoder = keras.layers.StringLookup(
             vocabulary=all_labels, num_oov_indices=0, output_mode="multi_hot"
         )
     return encoder(image_labels)
@@ -254,7 +256,7 @@ def create_dataset_classification(
 # Build the Keras model
 def build_and_compile_classification(
     labels: ty.List[str], model_type: str, input_shape: ty.Tuple[int, int, int]
-) -> Model:
+) -> keras.Model:
     """Builds and compiles a classification model for fine-tuning using EfficientNetB0 and weights from ImageNet.
     Args:
         labels: list of string lists, where each string list contains up to N_LABEL labels associated with an image
@@ -265,19 +267,19 @@ def build_and_compile_classification(
         len(labels), model_type
     )
 
-    x = tf.keras.Input(input_shape, dtype=tf.uint8)
+    x = keras.Input(input_shape, dtype=tf.uint8)
     # Data processing
     preprocessing = preprocessing_layers_classification(input_shape[:-1])
-    data_augmentation = tf.keras.Sequential(
+    data_augmentation = keras.Sequential(
         [
-            tf.keras.layers.RandomFlip(),
-            tf.keras.layers.RandomRotation(0.1),
-            tf.keras.layers.RandomZoom(0.1),
+            keras.layers.RandomFlip(),
+            keras.layers.RandomRotation(0.1),
+            keras.layers.RandomZoom(0.1),
         ]
     )
 
     # Get the pre-trained model
-    base_model = tf.keras.applications.EfficientNetB0(
+    base_model = keras.applications.EfficientNetB0(
         input_shape=input_shape, include_top=False, weights="imagenet"
     )
     # Freeze the weights of the base model. This allows to use transfer learning
@@ -285,11 +287,11 @@ def build_and_compile_classification(
     # would allow for all layers, not just the top, to be retrained.
     base_model.trainable = False
     # Add custom layers
-    global_pooling = tf.keras.layers.GlobalAveragePooling2D()
+    global_pooling = keras.layers.GlobalAveragePooling2D()
     # Output layer
-    classification = tf.keras.layers.Dense(units, activation=activation, name="output")
+    classification = keras.layers.Dense(units, activation=activation, name="output")
 
-    y = tf.keras.Sequential(
+    y = keras.Sequential(
         [
             preprocessing,
             data_augmentation,
@@ -299,11 +301,11 @@ def build_and_compile_classification(
         ]
     )(x)
 
-    model = tf.keras.Model(x, y)
+    model = keras.Model(x, y)
 
     model.compile(
         loss=loss_fnc,
-        optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3),
+        optimizer=keras.optimizers.Adam(learning_rate=1e-3),
         metrics=[metrics],
     )
     return model
@@ -323,7 +325,7 @@ def save_labels(labels: ty.List[str], model_dir: str) -> None:
 
 
 def save_tflite_classification(
-    model: Model,
+    model: keras.Model,
     model_dir: str,
     model_name: str,
     target_shape: ty.Tuple[int, int, int],
@@ -336,9 +338,9 @@ def save_tflite_classification(
         target_shape: desired output shape of predictions from model
     """
     # Convert the model to tflite, with batch size 1 so the graph does not have dynamic-sized tensors.
-    input = tf.keras.Input(target_shape, batch_size=1, dtype=tf.uint8)
+    input = keras.Input(target_shape, batch_size=1, dtype=tf.uint8)
     output = model(input, training=False)
-    wrapped_model = tf.keras.Model(inputs=input, outputs=output)
+    wrapped_model = keras.Model(inputs=input, outputs=output)
     converter = tf.lite.TFLiteConverter.from_keras_model(wrapped_model)
     converter.target_spec.supported_ops = TFLITE_OPS
     tflite_model = converter.convert()

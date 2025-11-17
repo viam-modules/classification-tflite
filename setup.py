@@ -8,8 +8,9 @@ setup(
     install_requires=[
         "google-cloud-aiplatform",
         "google-cloud-storage",
-        "keras==2.14.0",
-        "keras-cv==0.5.1",
+        "tensorflow==2.16.2",
+        "tf-keras==2.16.*",
+        "keras-cv",
         "Keras-Preprocessing==1.1.2",
     ],
 )
