@@ -13,6 +13,7 @@ jobs:
     uses: viam-modules/common-workflows/.github/workflows/lint_and_test.yaml@main
     with:
       test_script_name: scripts/test.sh
+      container_image: tf:2.16
     secrets: 
       VIAM_API_KEY_ID: ${{ secrets.VIAM_DEV_API_KEY_ID }}
       VIAM_API_KEY: ${{ secrets.VIAM_DEV_API_KEY }}
