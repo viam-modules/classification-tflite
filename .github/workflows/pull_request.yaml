@@ -13,8 +13,8 @@ jobs:
     uses: viam-modules/common-workflows/.github/workflows/lint_and_test.yaml@main
     with:
       test_script_name: scripts/test.sh
-      # tf:2.21 resolves to a private registry image; this is its public base image.
-      container_image: tensorflow/tensorflow:2.21.0-gpu
+      # tf:2.21's image is private and its public base has no git for checkout; test.sh installs TF 2.21 from setup.py.
+      container_image: python:3.11
     secrets: 
       VIAM_API_KEY_ID: ${{ secrets.VIAM_DEV_API_KEY_ID }}
       VIAM_API_KEY: ${{ secrets.VIAM_DEV_API_KEY }}
