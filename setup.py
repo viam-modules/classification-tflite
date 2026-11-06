@@ -6,11 +6,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "google-cloud-aiplatform",
-        "google-cloud-storage",
-        "tensorflow==2.16.2",
-        "tf-keras==2.16.*",
-        "keras-cv",
-        "Keras-Preprocessing==1.1.2",
+        "tensorflow==2.21.0",
+        "keras>=3.15,<4",
     ],
 )

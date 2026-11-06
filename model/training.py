@@ -4,13 +4,9 @@ import os
 import sys
 import typing as ty
 
-# Set environment variable to use legacy Keras 2 with TensorFlow 2.16
-os.environ["TF_USE_LEGACY_KERAS"] = "1"
-
 import tensorflow as tf
-import tf_keras as keras
+import keras
 import numpy as np
-
 
 single_label = "MODEL_TYPE_SINGLE_LABEL_CLASSIFICATION"
 multi_label = "MODEL_TYPE_MULTI_LABEL_CLASSIFICATION"
@@ -144,6 +140,8 @@ def encoded_labels(
         encoder = keras.layers.StringLookup(
             vocabulary=all_labels, num_oov_indices=0, output_mode="one_hot"
         )
+        # one_hot keeps the length-1 label axis; drop it so labels are (num_labels,).
+        return tf.squeeze(encoder(image_labels), axis=0)
     elif model_type == multi_label:
         encoder = keras.layers.StringLookup(
             vocabulary=all_labels, num_oov_indices=0, output_mode="multi_hot"
