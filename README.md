@@ -7,15 +7,17 @@ We test this when you cut a PR by running `scripts/test.sh`. This in turn just r
 ## Usage
 In order to submit this script with custom arguments, you must use the Viam CLI. One such example is included below:
 ```
-viam train submit custom with-upload --dataset-id=<DATASET-ID> --model-org-id=<ORG-ID> --model-name=classification --model-type=<DESIRED_TYPE> --framework=tflite --path=<REPO-TAR-PATH> --script-name=classification_script --args=num_epochs=3,labels="'green_square blue_star'"
+viam train submit custom with-upload --dataset-id=<DATASET-ID> --org-id=<ORG-ID> --model-org-id=<ORG-ID> --model-name=classification --model-type=<DESIRED_TYPE> --framework=tflite --path=<REPO-TAR-PATH> --script-name=classification_script --container-id=<CONTAINER-ID> --args=num_epochs=3,labels="'green_square blue_star'"
 ```
 Be sure to note that labels is surrounded with single quotes then enclosed with double quotes to ensure it is submitted properly. If you are running the script from a previous version or from the website, you will not be able to use custom arguments. 
+
+This script uses TensorFlow 2.21 and Keras 3.15+, which needs Python 3.11 or newer, so it only runs in the `tf:2.21` training container. Use the ID of `tf:2.21` from `viam train containers list` as `<CONTAINER-ID>`.
 
 ## Workflows
 
 ### Pull Request
 
-When you submit a pull request a workflow will run using our [common workflows](https://github.com/viam-modules/common-workflows/) that will lint check your code, build it in the docker image we us in production (tensorflow/tensorflow:2.11.1-gpu) and run the test file you specify.
+When you submit a pull request a workflow will run using our [common workflows](https://github.com/viam-modules/common-workflows/) that will lint check your code, build it in a `python:3.11` image with the TensorFlow 2.21 and Keras versions from `setup.py` (the `tf:2.21` training container uses Python 3.11 too) and run the test file you specify.
 
 The default test files is `scripts/test.sh`. If this changes you will need to update `.github/workflows/pull_request.yaml` so that it's
 
